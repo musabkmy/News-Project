@@ -1,0 +1,5 @@
+include: package:flutter_lints/flutter.yaml
+analyzer:
+  errors:
+    prefer_final_fields: ignore ignore
+    prefer_const_constructors_in_immutables: ignore
