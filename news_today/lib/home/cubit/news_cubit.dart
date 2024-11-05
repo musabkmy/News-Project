@@ -10,20 +10,21 @@ class NewsCubit extends Cubit<NewsState> {
 
   Future<void> initiate() async {
     emit(state.copyWith(status: NewsStatus.loading));
-
+    List<SourceEntity> sources = [];
+    List<ArticleEntity> topNews = [];
+    List<ArticleEntity> todaysNews = [];
     try {
-      final List<SourceEntity> sources = (await _newsApi.fetchSources());
-      if (sources.isEmpty) throw SourcesNotFoundException();
-      print('Sources: $sources');
+      sources = (await _newsApi.fetchSources());
+      // if (sources.isEmpty) throw SourcesNotFoundException();
+      // print('Sources: $sources');
 
-      final List<ArticleEntity> topNews = (await _newsApi.fetchTopNews());
-      if (topNews.isEmpty) throw TopArticlesNotFoundException();
-      print('Top News: $topNews');
+      topNews = (await _newsApi.fetchTopNews());
+      // if (topNews.isEmpty) throw TopArticlesNotFoundException();
+      // print('Top News: $topNews');
 
-      final List<ArticleEntity> todaysNews =
-          (await _newsApi.fetchTodaysNews(getSources(sources)));
-      if (todaysNews.isEmpty) throw TodaysArticlesNotFoundException();
-      print('Today\'s News: $todaysNews');
+      todaysNews = (await _newsApi.fetchTodaysNews(getSources(sources)));
+      // if (todaysNews.isEmpty) throw TodaysArticlesNotFoundException();
+      // print('Today\'s News: $todaysNews');
 
       emit(state.copyWith(
           status: NewsStatus.success,
@@ -34,8 +35,7 @@ class NewsCubit extends Cubit<NewsState> {
     } on Exception {
       emit(state.copyWith(status: NewsStatus.failure, errorMessage: ''));
     } catch (err) {
-      emit(state.copyWith(
-          status: NewsStatus.failure, errorMessage: err.toString()));
+      emit(state.copyWith(status: NewsStatus.failure, errorMessage: ''));
     }
   }
 }

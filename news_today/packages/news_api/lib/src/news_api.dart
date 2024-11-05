@@ -2,6 +2,7 @@ import 'package:news_api/news_api.dart';
 
 abstract class NewsApi {
   Future<List<SourceEntity>> fetchSources();
+  Future<bool> hasAFavIcon(String url);
   Future<List<ArticleEntity>> fetchTopNews();
   Future<List<ArticleEntity>> fetchTodaysNews(String sources);
   Future<void> saveNews(List<ArticleModel> news);

@@ -12,10 +12,13 @@ void main() {
   group('News Cubit', () {
     late MockNewsApi mockNewsApi;
     late NewsCubit newsCubit;
+    // late FavIconCubit favIconCubit;
+    // late String iconUrl;
 
     setUp(() {
       mockNewsApi = MockNewsApi();
       newsCubit = NewsCubit(mockNewsApi);
+      // favIconCubit = FavIconCubit(mockNewsApi);
     });
 
     blocTest<NewsCubit, NewsState>(
@@ -32,7 +35,11 @@ void main() {
         },
         act: (cubit) => cubit.initiate(),
         verify: (_) {
-          verify(() => mockNewsApi.fetchSources()).called(1);
+          verifyInOrder([
+            () => mockNewsApi.fetchSources(),
+            () => mockNewsApi.fetchTopNews(),
+            () => mockNewsApi.fetchTodaysNews(getSources(mockSourceData)),
+          ]);
         },
         expect: () => [
               NewsState(status: NewsStatus.loading),
@@ -48,20 +55,41 @@ void main() {
     blocTest<NewsCubit, NewsState>(
         'emits [NewsState.loading, NewsState.failure] when initiate is called and API calls failed',
         build: () {
+          print('mockSourceData.length ${mockSourceData.length}');
           when(() => mockNewsApi.fetchSources())
               .thenAnswer((_) async => mockSourceData);
           when(() => mockNewsApi.fetchTopNews())
-              .thenAnswer((_) async => throw TopArticlesNotFoundException());
+              .thenAnswer((_) async => mockTopArticleData);
+          when(() => mockNewsApi.fetchTodaysNews('1,2'))
+              .thenAnswer((_) async => throw TodaysArticlesNotFoundException());
           return newsCubit;
         },
         act: (cubit) => cubit.initiate(),
-        expect: () => [
+        expect: () => <NewsState>[
               NewsState(status: NewsStatus.loading),
               NewsState(
                 status: NewsStatus.failure,
                 errorMessage: '',
               ),
             ]);
+
+    // blocTest<FavIconCubit, FavIconState>(
+    //   'test if fav icon should be loaded when ',
+    //   setUp: () {
+    //     iconUrl = 'https://arstechnica.com/favicon.ico';
+    //   },
+    //   build: () {
+    //     when(() => mockNewsApi.hasAFavIcon(iconUrl))
+    //         .thenAnswer((_) async => true);
+    //     return favIconCubit;
+    //   },
+    //   act: (cubit) => cubit.useFavIcon(iconUrl),
+    //   expect: () => [
+    //     FavIconState(isLoading: true),
+    //     FavIconState(isLoading: true, isUsingUrl: true, faviconUrl: iconUrl),
+    //     FavIconState(isLoading: false, isUsingUrl: true, faviconUrl: iconUrl),
+    //   ],
+    // );
 
     tearDown(() {
       newsCubit.close();

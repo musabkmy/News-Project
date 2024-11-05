@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:news_repository/news_repository.dart';
+import 'package:news_api/news_api.dart';
+import 'package:news_today/home/cubit/news_cubit.dart';
+import 'package:news_today/home/views/home_screen.dart';
+import 'package:news_today/themes/App_theme.dart';
+import 'package:news_today/themes/cubit/theme_cubit.dart';
 
 class App extends StatelessWidget {
   // final NewsRepository userRepo;
@@ -9,28 +13,32 @@ class App extends StatelessWidget {
     required this.newsRepository,
     // required this.settingsController,
   });
-  final NewsRepository newsRepository;
+  final NewsApi newsRepository;
 
   @override
   Widget build(BuildContext context) {
     return RepositoryProvider.value(
       value: newsRepository,
-      child: const AppView(),
-    );
-  }
-}
-
-class AppView extends StatelessWidget {
-  const AppView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+      child: MultiBlocProvider(
+          providers: [
+            BlocProvider<ThemeCubit>(
+              create: (context) => ThemeCubit(
+                appTheme: appLightTheme(),
+              ),
+            ),
+            BlocProvider<NewsCubit>(
+              create: (context) => NewsCubit(newsRepository),
+            ),
+          ],
+          child: BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, themeState) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                theme: themeState.themeData,
+                home: const HomeScreen(),
+              );
+            },
+          )),
     );
   }
 }

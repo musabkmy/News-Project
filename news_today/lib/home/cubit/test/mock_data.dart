@@ -8,14 +8,14 @@ final List<SourceEntity> mockSourceData = [
     id: '1',
     name: 'Mock Source 1',
     description: 'Description for Mock Source 1',
-    url: 'https://source1.com',
+    favIconURL: 'https://source1.com',
     category: Category.business,
   ),
   SourceEntity(
     id: '2',
     name: 'Mock Source 2',
     description: 'Description for Mock Source 2',
-    url: 'https://source2.com',
+    favIconURL: 'https://source2.com',
     category: Category.technology,
   ),
   // Add more mock data as needed

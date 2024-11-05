@@ -9,7 +9,8 @@ String getSources(List<SourceEntity> sources) {
   }
 
   if (sources.isNotEmpty) {
-    for (int i = 0; (i < sources.length || i <= 20); i++) {
+    for (int i = 0; (i < sources.length && i <= 20); i++) {
+      print('i was: $i');
       addId(sources[i].id);
     }
   }

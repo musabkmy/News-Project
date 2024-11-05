@@ -4,19 +4,20 @@ import 'package:news_api/src/utils/string_extension.dart';
 import '../../enums/category.dart';
 
 class SourceModel implements SourceBase {
+  static const String favIcon = '/favicon.ico';
   @override
   final String? id;
   @override
   final String? name;
   final String? description;
-  final String? url;
+  final String? favIconURL;
   final Category? category;
 
   const SourceModel({
     required this.id,
     required this.name,
     required this.description,
-    required this.url,
+    required this.favIconURL,
     required this.category,
   });
 
@@ -26,7 +27,9 @@ class SourceModel implements SourceBase {
       id: json['id'].toString().valueOrEmpty,
       name: json['name'].toString().valueOrEmpty,
       description: json['description'].toString().valueOrEmpty,
-      url: json['url'].toString().valueOrEmpty,
+      favIconURL: (json['url'] != null
+          ? (json['url'] as String).extractBaseUrl() + favIcon
+          : ''),
       category: Category.values.firstWhere(
         (category) =>
             category.toString().split('.').last.toLowerCase() ==
@@ -41,7 +44,7 @@ class SourceModel implements SourceBase {
         id: id,
         name: name,
         description: description,
-        url: url,
+        favIconURL: favIconURL,
         category: category);
   }
 }

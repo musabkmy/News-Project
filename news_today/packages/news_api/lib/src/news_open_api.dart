@@ -33,10 +33,12 @@ class NewsOpenApi implements NewsApi {
         if (sourcesJson.isEmpty) {
           throw SourcesNotFoundException();
         }
+        print('sourcesJson: $sourcesJson');
         final List<SourceModel> sources = sourcesJson
             .map((response) =>
                 SourceModel.fromJson(response as Map<String, dynamic>))
-            .toList();
+            .toList()
+            .sublist(0, sourcesJson.length >= 20 ? 20 : sourcesJson.length);
         return sources.map((element) => element.toEntity()).toList();
       } else {
         throw FetchSourcesFailure();
@@ -44,6 +46,21 @@ class NewsOpenApi implements NewsApi {
     } catch (err) {
       log(err.toString());
       rethrow;
+    }
+  }
+
+  @override
+  Future<bool> hasAFavIcon(String url) async {
+    try {
+      // Attempt to fetch the image from the provided URL
+      final response = await http.head(Uri.parse(url));
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 

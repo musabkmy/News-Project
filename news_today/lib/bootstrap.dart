@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_api/news_api.dart';
-import 'package:news_repository/news_repository.dart';
 import 'package:news_today/src/app.dart';
 import 'package:news_today/src/app_block_observer.dart';
 
@@ -27,11 +26,10 @@ void bootstrap({required NewsApi newsApi}) async {
   };
 
   Bloc.observer = const AppBlocObserver();
-
-  final newsRepository = NewsRepository(newsApi: newsApi);
+  final newsApi = NewsOpenApi();
 
   runApp(App(
-    newsRepository: newsRepository,
+    newsRepository: newsApi,
     // settingsController: settingsController,
   ));
 }

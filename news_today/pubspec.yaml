@@ -23,6 +23,7 @@ dependencies:
   news_api:
     path: packages/news_api
   mocktail: ^1.0.4
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:
@@ -31,6 +32,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - images/placement.jpg
 
   fonts:
     - family: Caros
