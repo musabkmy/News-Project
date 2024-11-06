@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:news_api/news_api.dart';
 
 String getSources(List<SourceEntity> sources) {

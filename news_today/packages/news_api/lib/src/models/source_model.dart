@@ -1,8 +1,6 @@
 import 'package:news_api/news_api.dart';
 import 'package:news_api/src/utils/string_extension.dart';
 
-import '../../enums/category.dart';
-
 class SourceModel implements SourceBase {
   static const String favIcon = '/favicon.ico';
   @override
@@ -11,7 +9,7 @@ class SourceModel implements SourceBase {
   final String? name;
   final String? description;
   final String? favIconURL;
-  final Category? category;
+  final ArticleCategory? category;
 
   const SourceModel({
     required this.id,
@@ -30,11 +28,11 @@ class SourceModel implements SourceBase {
       favIconURL: (json['url'] != null
           ? (json['url'] as String).extractBaseUrl() + favIcon
           : ''),
-      category: Category.values.firstWhere(
+      category: ArticleCategory.values.firstWhere(
         (category) =>
-            category.toString().split('.').last.toLowerCase() ==
+            category.value.toLowerCase() ==
             json['category'].toString().toLowerCase(),
-        orElse: () => Category.unknown, // Handle unknown categories
+        orElse: () => ArticleCategory.unknown, // Handle unknown categories
       ),
     );
   }

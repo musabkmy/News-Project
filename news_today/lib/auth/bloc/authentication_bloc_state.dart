@@ -1,6 +1,6 @@
-part of 'authentication_bloc_bloc.dart';
+// part of 'authentication_bloc_bloc.dart';
 
-@immutable
-sealed class AuthenticationBlocState {}
+// @immutable
+// sealed class AuthenticationBlocState {}
 
-final class AuthenticationBlocInitial extends AuthenticationBlocState {}
+// final class AuthenticationBlocInitial extends AuthenticationBlocState {}

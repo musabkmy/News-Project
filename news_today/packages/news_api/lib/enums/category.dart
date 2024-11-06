@@ -1,4 +1,5 @@
-enum Category {
+enum ArticleCategory {
+  all('All'),
   general('General'),
   business('Business'),
   entertainment('Entertainment'),
@@ -10,5 +11,5 @@ enum Category {
 
   final String value;
 
-  const Category(this.value);
+  const ArticleCategory(this.value);
 }

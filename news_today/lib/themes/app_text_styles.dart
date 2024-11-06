@@ -18,7 +18,7 @@ class AppTextStyles {
         fontStyle: FontStyle.italic,
         fontWeight: FontWeight.bold,
         color: appColors.textTitleColor,
-        fontSize: 20.0,
+        fontSize: 22.0,
       );
 
   TextStyle get titleMediumItalic => TextStyle(
@@ -45,12 +45,20 @@ class AppTextStyles {
         fontSize: 16.0,
       );
 
+  TextStyle get bodyLarge2 => TextStyle(
+        fontFamily: 'Caros',
+        fontStyle: FontStyle.normal,
+        fontWeight: FontWeight.bold,
+        color: appColors.textBody2Color,
+        fontSize: 16.0,
+      );
+
   TextStyle get bodyMedium => TextStyle(
         fontFamily: 'Caros',
         fontStyle: FontStyle.normal,
         fontWeight: FontWeight.normal,
         color: appColors.textBodyColor,
-        fontSize: 14.0,
+        fontSize: 16.0,
       );
 
   TextStyle get bodyMedium2 => TextStyle(
@@ -58,6 +66,14 @@ class AppTextStyles {
         fontStyle: FontStyle.normal,
         fontWeight: FontWeight.normal,
         color: appColors.textBody2Color,
+        fontSize: 16.0,
+      );
+
+  TextStyle get bodyBoldSmall => TextStyle(
+        fontFamily: 'Caros',
+        fontStyle: FontStyle.normal,
+        fontWeight: FontWeight.w600,
+        color: appColors.textBodyColor,
         fontSize: 14.0,
       );
 
@@ -66,7 +82,7 @@ class AppTextStyles {
         fontStyle: FontStyle.normal,
         fontWeight: FontWeight.normal,
         color: appColors.textBodySmallColor,
-        fontSize: 12.0,
+        fontSize: 14.0,
       );
 
   TextStyle get bodySmallItalic => TextStyle(
@@ -74,6 +90,6 @@ class AppTextStyles {
         fontStyle: FontStyle.italic,
         fontWeight: FontWeight.normal,
         color: appColors.textBodySmallColor,
-        fontSize: 12.0,
+        fontSize: 14.0,
       );
 }

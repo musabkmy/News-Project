@@ -1,7 +1,5 @@
 import 'package:news_api/news_api.dart';
 
-import '../../enums/category.dart';
-
 class SourceEntity implements SourceBase {
   @override
   final String? id;
@@ -9,7 +7,7 @@ class SourceEntity implements SourceBase {
   final String? name;
   final String? description;
   final String? favIconURL;
-  final Category? category;
+  final ArticleCategory? category;
   // final String language;
   // final String country;
 
@@ -22,4 +20,25 @@ class SourceEntity implements SourceBase {
     // required this.language,
     // required this.country,
   });
+
+  factory SourceEntity.defaultInstance() {
+    return const SourceEntity(
+        id: '',
+        name: '',
+        description: '',
+        favIconURL: '',
+        category: ArticleCategory.unknown);
+  }
+
+  // Override == operator for custom equality check
+  @override
+  bool operator ==(Object other) {
+    //share same memory
+    if (identical(this, other)) return true;
+    return other is SourceEntity && other.id == id;
+  }
+
+  // Override hashCode to match the equality operator in hashCode / hashSet
+  @override
+  int get hashCode => id.hashCode;
 }

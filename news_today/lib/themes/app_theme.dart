@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:news_today/themes/app_colors.dart';
 import 'package:news_today/themes/app_text_styles.dart';
 
@@ -10,8 +9,17 @@ ThemeData appLightTheme() {
     scaffoldBackgroundColor: appColors.primaryColor,
     appBarTheme: const AppBarTheme(
         color: Colors.transparent,
+        elevation: 0.0,
         scrolledUnderElevation: 0.0,
         surfaceTintColor: Colors.transparent),
+    tabBarTheme: const TabBarTheme(
+      indicator: null,
+      labelPadding: EdgeInsets.zero,
+      indicatorColor: Colors.transparent,
+      dividerColor: Colors.transparent,
+      splashFactory: NoSplash.splashFactory,
+      // indicatorSize: 0.0,
+    ),
   );
 }
 

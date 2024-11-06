@@ -13,7 +13,8 @@ class NewsRepository {
 
   Future<List<SourceEntity>> fetchSources() => _newsApi.fetchSources();
   Future<List<ArticleEntity>> fetchBreakingNews() => _newsApi.fetchTopNews();
-  Future<List<ArticleEntity>> fetchTodaysNews(String sources) =>
-      _newsApi.fetchTodaysNews(sources);
+  Future<Map<ArticleCategory, List<ArticleEntity>>> fetchTodaysNews(
+          List<SourceEntity> sourcesEntity) =>
+      _newsApi.fetchTodaysNews(sourcesEntity);
   Future<void> saveNews(List<ArticleModel> news) => _newsApi.saveNews(news);
 }

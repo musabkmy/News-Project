@@ -1,4 +1,4 @@
-// ignore_for_file: collection_methods_unrelated_type
+// ignore_for_file: collection_methods_unrelated_type, avoid_print
 import 'package:news_api/news_api.dart';
 import 'package:test/test.dart';
 import 'package:http/http.dart' as http;
@@ -8,10 +8,15 @@ void main() {
 
   test('Today\'s News', () async {
     final List<SourceEntity> sources = await newsApi.fetchSources();
-    final List<ArticleEntity> response =
-        await newsApi.fetchTodaysNews(getSources(sources));
-    for (var element in response) {
-      print(element.id.toString());
+    final Map<ArticleCategory, List<ArticleEntity>> response =
+        await newsApi.fetchTodaysNews(sources);
+    print('Length: ${response.values.length}');
+    if (response.containsKey(ArticleCategory.business)) {
+      for (var element in response[ArticleCategory.business]!) {
+        print('Element ${element.title}');
+      }
+    } else {
+      print('Do not contain the item');
     }
     // final response = await newsApiService.getSources();
     // List<SourceModel> sources = [];

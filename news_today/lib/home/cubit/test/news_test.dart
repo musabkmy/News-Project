@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:mocktail/mocktail.dart';
 import 'package:news_api/news_api.dart';
 import 'package:news_today/home/cubit/news_cubit.dart';
@@ -17,7 +19,7 @@ void main() {
 
     setUp(() {
       mockNewsApi = MockNewsApi();
-      newsCubit = NewsCubit(mockNewsApi);
+      newsCubit = NewsCubit();
       // favIconCubit = FavIconCubit(mockNewsApi);
     });
 
@@ -29,17 +31,27 @@ void main() {
               .thenAnswer((_) async => mockSourceData);
           when(() => mockNewsApi.fetchTopNews())
               .thenAnswer((_) async => mockTopArticleData);
-          when(() => mockNewsApi.fetchTodaysNews(getSources(mockSourceData)))
+          when(() => mockNewsApi.fetchTodaysNews(mockSourceData))
               .thenAnswer((_) async => mockTodaysArticles);
           return newsCubit;
         },
-        act: (cubit) => cubit.initiate(),
-        verify: (_) {
-          verifyInOrder([
-            () => mockNewsApi.fetchSources(),
-            () => mockNewsApi.fetchTopNews(),
-            () => mockNewsApi.fetchTodaysNews(getSources(mockSourceData)),
-          ]);
+        act: (cubit) async {
+          cubit.initiate();
+        },
+        verify: (cubit) {
+          final categories = cubit.getAvailableCategories();
+          expect(categories.length, 5);
+
+          final allArticle = cubit.getCategoryArticles(ArticleCategory.all);
+          expect(allArticle.length, 8);
+
+          final healthArticle =
+              cubit.getCategoryArticles(ArticleCategory.health);
+          expect(healthArticle.length, 2);
+
+          final techArticle =
+              cubit.getCategoryArticles(ArticleCategory.technology);
+          expect(techArticle.length, 0);
         },
         expect: () => [
               NewsState(status: NewsStatus.loading),
@@ -60,7 +72,7 @@ void main() {
               .thenAnswer((_) async => mockSourceData);
           when(() => mockNewsApi.fetchTopNews())
               .thenAnswer((_) async => mockTopArticleData);
-          when(() => mockNewsApi.fetchTodaysNews('1,2'))
+          when(() => mockNewsApi.fetchTodaysNews(mockSourceData))
               .thenAnswer((_) async => throw TodaysArticlesNotFoundException());
           return newsCubit;
         },

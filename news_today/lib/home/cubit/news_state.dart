@@ -22,14 +22,14 @@ final class NewsState extends Equatable {
   final NewsStatus status;
   final List<SourceEntity>? sources;
   final List<ArticleEntity>? topNews;
-  final List<ArticleEntity>? todaysNews;
+  final Map<ArticleCategory, List<ArticleEntity>>? todaysNews;
   final String errorMessage;
 
   NewsState copyWith({
     NewsStatus? status,
     List<SourceEntity>? sources,
     List<ArticleEntity>? topNews,
-    List<ArticleEntity>? todaysNews,
+    Map<ArticleCategory, List<ArticleEntity>>? todaysNews,
     String? errorMessage,
   }) {
     return NewsState(

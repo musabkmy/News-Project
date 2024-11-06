@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:developer';
 
@@ -96,7 +98,11 @@ class NewsOpenApi implements NewsApi {
   }
 
   @override
-  Future<List<ArticleEntity>> fetchTodaysNews(String sources) async {
+  Future<Map<ArticleCategory, List<ArticleEntity>>> fetchTodaysNews(
+      List<SourceEntity> sourcesEntity) async {
+    //create sources query
+    String sources = getSources(sourcesEntity);
+
     try {
       final response = await http.get(Uri.parse(
           '$baseUrl/everything?apiKey=$apiKey&language=$language&sources=$sources'));
@@ -107,16 +113,37 @@ class NewsOpenApi implements NewsApi {
         if (!jsonResponse.containsKey('articles')) {
           throw TodaysArticlesNotFoundException();
         }
-        final List<dynamic> sourcesJson = jsonResponse['articles'];
+        final List<dynamic> articlesJson = jsonResponse['articles'];
 
-        if (sourcesJson.isEmpty) {
+        if (articlesJson.isEmpty) {
           throw TodaysArticlesNotFoundException();
         }
-        final List<ArticleModel> sources = sourcesJson
+
+        //json to model
+        final List<ArticleModel> articlesModel = articlesJson
             .map((response) =>
                 ArticleModel.fromJson(response as Map<String, dynamic>))
             .toList();
-        return sources.map((element) => element.toEntity()).toList();
+        //model to entity
+        final List<ArticleEntity> articlesEntity =
+            articlesModel.map((element) => element.toEntity()).toList();
+
+        //create a list of categories depending on th sources ArticleCategory
+        final Map<ArticleCategory, List<ArticleEntity>> categorizedArticles =
+            {};
+        SourceEntity selectedSource;
+        for (var article in articlesEntity) {
+          selectedSource = sourcesEntity.firstWhere(
+              (source) => source.id == article.source.id,
+              orElse: () => SourceEntity.defaultInstance());
+          if (selectedSource != SourceEntity.defaultInstance()) {
+            categorizedArticles
+                .putIfAbsent(selectedSource.category!, () => [])
+                .add(article);
+          }
+        }
+
+        return categorizedArticles;
       } else {
         throw FetchTodaysArticlesFailure();
       }

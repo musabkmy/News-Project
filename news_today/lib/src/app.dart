@@ -27,7 +27,7 @@ class App extends StatelessWidget {
               ),
             ),
             BlocProvider<NewsCubit>(
-              create: (context) => NewsCubit(newsRepository),
+              create: (context) => NewsCubit(),
             ),
           ],
           child: BlocBuilder<ThemeCubit, ThemeState>(

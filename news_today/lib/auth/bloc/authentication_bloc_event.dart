@@ -1,4 +1,4 @@
-part of 'authentication_bloc_bloc.dart';
+// part of 'authentication_bloc_bloc.dart';
 
-@immutable
-sealed class AuthenticationBlocEvent {}
+// @immutable
+// sealed class AuthenticationBlocEvent {}
