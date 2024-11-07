@@ -22,7 +22,7 @@ class AppLightColors extends AppColors {
   Color get accentColor => const Color(0xFF1E1E2C);
 
   @override
-  Color get pinkColor => const Color(0xFFD32F2F);
+  Color get pinkColor => const Color(0xFF8B0000);
 
   @override
   Color get textTitleColor => const Color(0xFF1E1E2C);

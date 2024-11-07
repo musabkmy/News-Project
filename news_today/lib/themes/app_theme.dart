@@ -7,6 +7,8 @@ ThemeData appLightTheme() {
   return ThemeData(
     brightness: Brightness.light,
     scaffoldBackgroundColor: appColors.primaryColor,
+    // textTheme:
+    //     Typography(platform: TargetPlatform.iOS).black.apply(fontSizeFactor: 1),
     appBarTheme: const AppBarTheme(
         color: Colors.transparent,
         elevation: 0.0,

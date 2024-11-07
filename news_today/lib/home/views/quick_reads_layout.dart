@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_api/news_api.dart';
 import 'package:news_today/home/helpers/shared.dart';
 import 'package:news_today/themes/app_colors.dart';
@@ -20,30 +21,44 @@ class QuickReadsLayout extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(padding3),
-          child: Text(
-            'Quick Reads',
-            style: appTextStyles.titleLarge,
-          ),
-        ),
-        SizedBox(
-          height: 120.0,
-          child: ListView.builder(
+        // Padding(
+        //   padding:
+        //       EdgeInsets.symmetric(horizontal: spPadding1, vertical: padding3),
+        //   child: Text(
+        //     'Quick Reads',
+        //     style: appTextStyles.titleLarge,
+        //   ),
+        // ),
+        Container(
+          height: 90.0.sp,
+          // padding: EdgeInsets.only(left: spPadding1),
+          constraints: const BoxConstraints(maxHeight: 200.0),
+          child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: sources.length,
+            separatorBuilder: (context, index) =>
+                const SizedBox(width: padding3),
             itemBuilder: (context, index) {
               return Container(
-                padding: const EdgeInsets.all(2.0),
-                // margin: const EdgeInsets.only(bottom: padding1),
-                width: 120.0,
+                width: 70.0.sp,
+                margin: EdgeInsets.only(
+                    left: index == 0 ? spPadding1 : 0.0,
+                    right: index == sources.length - 1 ? spPadding1 : 0.0),
+                constraints: const BoxConstraints(
+                  maxWidth: 140.0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      height: 80.0,
-                      width: 80.0,
-                      padding: const EdgeInsets.all(padding2),
+                      height: 70.0.sp,
+                      width: 70.0.sp,
+                      // padding: const EdgeInsets.all(padding2),
+                      constraints: const BoxConstraints(
+                        maxHeight: 140.0,
+                        maxWidth: 140.0,
+                      ),
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: appColors.seconderColor),
@@ -56,13 +71,10 @@ class QuickReadsLayout extends StatelessWidget {
                             height: double.maxFinite, width: double.maxFinite),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: padding2),
-                      child: Text(sources[index].name!,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          style: appTextStyles.bodyBoldSmall),
-                    ),
+                    // Text(sources[index].name!,
+                    //     textAlign: TextAlign.center,
+                    //     maxLines: 1,
+                    //     style: appTextStyles.bodySmall),
                   ],
                 ),
               );

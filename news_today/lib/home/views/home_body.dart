@@ -18,18 +18,28 @@ class HomeBody extends StatelessWidget {
         final newsState = BlocProvider.of<NewsCubit>(context).state;
         final themeState = BlocProvider.of<ThemeCubit>(context).state;
 
-        return ListView(
-          children: [
-            const SizedBox(height: padding3),
-            QuickReadsLayout(
-                sources: newsState.sources!,
-                appTextStyles: themeState.themeData.appTextStyles,
-                appColors: themeState.themeData.appTextStyles.appColors),
-            const SizedBox(height: padding3),
-            const TopNewsLayout(),
-            const SizedBox(height: padding3),
-            const TodaysNewsLayout(),
-          ],
+        return SafeArea(
+          minimum: EdgeInsets.only(top: spPadding1),
+          child: ListView(
+            shrinkWrap: true,
+            physics: const PageScrollPhysics(),
+            children: [
+              Text(
+                'NEWS TODAY',
+                style: themeState.themeData.appTextStyles.headline,
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: spPadding2),
+              QuickReadsLayout(
+                  sources: newsState.sources!,
+                  appTextStyles: themeState.themeData.appTextStyles,
+                  appColors: themeState.themeData.appTextStyles.appColors),
+              SizedBox(height: spPadding1),
+              const TopNewsLayout(),
+              SizedBox(height: spPadding1),
+              const TodaysNewsLayout(),
+            ],
+          ),
         );
       },
     );

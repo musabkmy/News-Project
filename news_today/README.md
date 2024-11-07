@@ -1,3 +1,3 @@
 # news_today
 
-A new Flutter project.
+A Demo App

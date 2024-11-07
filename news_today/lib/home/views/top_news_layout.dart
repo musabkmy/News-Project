@@ -3,6 +3,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_api/news_api.dart';
 import 'package:news_today/home/cubit/news_cubit.dart';
 import 'package:news_today/home/helpers/shared.dart';
@@ -19,22 +20,34 @@ class TopNewsLayout extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(padding3),
+            padding: EdgeInsets.symmetric(
+                horizontal: spPadding1, vertical: padding3),
             child: Text('Top News',
                 style: themeState.themeData.appTextStyles.titleLarge),
           ),
           BlocBuilder<NewsCubit, NewsState>(builder: (context, newsState) {
-            return SizedBox(
-              height: 200.0,
-              child: ListView.builder(
+            return Container(
+              height: 160.0.h,
+              constraints: const BoxConstraints(maxHeight: 340.0),
+              child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: newsState.topNews!.length,
+                separatorBuilder: (context, index) =>
+                    SizedBox(width: spPadding1),
                 itemBuilder: (context, index) {
-                  return TopNewsArticle(
-                    article: newsState.topNews![index],
-                    articleTitleStyle:
-                        themeState.themeData.appTextStyles.bodyLarge2,
-                    placementColor: themeState.themeData.appColors.accentColor,
+                  return Container(
+                    margin: EdgeInsets.only(
+                        left: index == 0 ? spPadding1 : 0.0,
+                        right: index == newsState.topNews!.length - 1
+                            ? spPadding1
+                            : 0.0),
+                    child: TopNewsArticle(
+                      article: newsState.topNews![index],
+                      articleTitleStyle:
+                          themeState.themeData.appTextStyles.bodyLarge2,
+                      placementColor:
+                          themeState.themeData.appColors.accentColor,
+                    ),
                   );
                 },
               ),
@@ -60,16 +73,15 @@ class TopNewsArticle extends StatelessWidget {
   Widget build(BuildContext context) {
     print('image url: ${article.urlToImage}');
     return Container(
-      height: 340.0,
-      width: 340.0,
-      margin: const EdgeInsets.symmetric(horizontal: padding3),
+      width: 0.6.sw,
+      constraints: const BoxConstraints(minWidth: 340.0),
       child: Stack(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(radius2),
+            borderRadius: BorderRadius.circular(radius1),
             child: CachedNetworkImage(
-              height: 340.0,
-              width: 340,
+              height: double.maxFinite,
+              width: double.maxFinite,
               fit: BoxFit.cover,
               imageUrl: article.urlToImage,
               color: placementColor.withOpacity(0.5), // Color tint
@@ -91,10 +103,20 @@ class TopNewsArticle extends StatelessWidget {
           Container(
             alignment: Alignment.bottomCenter,
             padding: const EdgeInsets.all(padding3),
-            child: Text(article.title,
-                style: articleTitleStyle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis),
+            child: Text(
+              article.title,
+              style: articleTitleStyle.copyWith(
+                shadows: [
+                  Shadow(
+                    blurRadius: 10.0,
+                    color: placementColor.withOpacity(0.4),
+                    offset: const Offset(2.0, 2.0),
+                  ),
+                ],
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),

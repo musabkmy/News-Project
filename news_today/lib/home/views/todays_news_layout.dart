@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_api/news_api.dart';
 import 'package:news_today/home/cubit/news_cubit.dart';
 import 'package:news_today/home/helpers/shared.dart';
@@ -51,80 +52,99 @@ class _TodaysNewsLayoutState extends State<TodaysNewsLayout>
   @override
   Widget build(BuildContext context) {
     final double fullWidth = MediaQuery.of(context).size.width;
+    final double fullHeight = MediaQuery.of(context).size.height;
     return BlocBuilder<ThemeCubit, ThemeState>(builder: (context, themeState) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(padding3),
-            child: Text('Today\'s News',
-                style: themeState.themeData.appTextStyles.titleLarge),
-          ),
-          SizedBox(
-            height: 28.0,
-            child: TabBar(
-              isScrollable: true,
-              padding: EdgeInsets.zero,
-              splashFactory: NoSplash.splashFactory,
-              overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                (Set<WidgetState> states) {
-                  return states.contains(WidgetState.focused)
-                      ? null
-                      : Colors.transparent;
-                },
+      return SizedBox(
+        height: fullHeight - 140.0,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(
+                  horizontal: spPadding1, vertical: padding3),
+              child: Text('Today\'s News',
+                  style: themeState.themeData.appTextStyles.titleLarge),
+            ),
+            SizedBox(
+              height: 32.0.sp,
+              child: TabBar(
+                isScrollable: true,
+                padding: EdgeInsets.zero,
+                splashFactory: NoSplash.splashFactory,
+                overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                  (Set<WidgetState> states) {
+                    return states.contains(WidgetState.focused)
+                        ? null
+                        : Colors.transparent;
+                  },
+                ),
+                tabAlignment: TabAlignment.start,
+                controller: _tabController,
+                dividerColor: Colors.transparent,
+                tabs: _availableCategories.asMap().entries.map((item) {
+                  return Container(
+                    margin: EdgeInsets.only(
+                        left: item.key == 0 ? spPadding1 : 0.0,
+                        right: spPadding1),
+                    child: TabLayout(
+                        tabTitle: item.value.value,
+                        isPressed: currentTabIndex == item.key,
+                        textStyles: themeState.themeData.appTextStyles,
+                        appColors: themeState.themeData.appColors),
+                  );
+                }).toList(),
               ),
-              tabAlignment: TabAlignment.start,
-              controller: _tabController,
-              dividerColor: Colors.transparent,
-              tabs: _availableCategories
-                  .asMap()
-                  .entries
-                  .map((item) => TabLayout(
-                      tabTitle: item.value.value,
-                      isPressed: currentTabIndex == item.key,
-                      textStyles: themeState.themeData.appTextStyles,
-                      appColors: themeState.themeData.appColors))
-                  .toList(),
             ),
-          ),
-          SizedBox(
-            height: fullWidth - 48.0,
-            child: TabBarView(
-              controller: _tabController,
-              children: _availableCategories.asMap().entries.map((category) {
-                _fetchedArticles[category.key] =
-                    _newsCubit.getCategoryArticles(category.value);
-                print(
-                    '_fetchedArticles: ${_fetchedArticles[category.key].length}');
-                return _fetchedArticles[category.key].isEmpty
-                    ? const SizedBox()
-                    : ListView.separated(
-                        itemCount: _fetchedArticles[category.key].length,
-                        separatorBuilder: (context, index) => Divider(
-                          height: 2.0,
-                          color: themeState.themeData.appColors.seconderColor,
-                        ),
-                        itemBuilder: (context, index) {
-                          if (index >= _fetchedArticles[category.key].length) {
-                            // Logging and handling out-of-range index
-                            print('Index out of range: $index');
-                            return const SizedBox();
-                          }
-                          return TabViewLayout(
-                            article: _fetchedArticles[category.key][index],
-                            appTextStyles: themeState.themeData.appTextStyles,
-                            fullWidth: fullWidth,
-                            imagePlacementColor: themeState
-                                .themeData.appColors.accentColor
-                                .withOpacity(0.4),
+            SizedBox(
+              height: spPadding1,
+            ),
+            Flexible(
+              fit: FlexFit.tight,
+              // height: fullWidth - 48.0,
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: spPadding1),
+                child: TabBarView(
+                  controller: _tabController,
+                  children:
+                      _availableCategories.asMap().entries.map((category) {
+                    _fetchedArticles[category.key] =
+                        _newsCubit.getCategoryArticles(category.value);
+                    print(
+                        '_fetchedArticles: ${_fetchedArticles[category.key].length}');
+                    return _fetchedArticles[category.key].isEmpty
+                        ? const SizedBox()
+                        : ListView.separated(
+                            shrinkWrap: true,
+                            physics: const ClampingScrollPhysics(),
+                            itemCount: _fetchedArticles[category.key].length,
+                            separatorBuilder: (context, index) => SizedBox(
+                              height: spPadding2,
+                            ),
+                            itemBuilder: (context, index) {
+                              if (index >=
+                                  _fetchedArticles[category.key].length) {
+                                // Logging and handling out-of-range index
+                                print('Index out of range: $index');
+                                return const SizedBox();
+                              }
+                              return TabViewLayout(
+                                article: _fetchedArticles[category.key][index],
+                                appTextStyles:
+                                    themeState.themeData.appTextStyles,
+                                fullWidth: fullWidth,
+                                imagePlacementColor: themeState
+                                    .themeData.appColors.accentColor
+                                    .withOpacity(0.4),
+                              );
+                            },
                           );
-                        },
-                      );
-              }).toList(),
+                  }).toList(),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     });
   }
@@ -152,25 +172,14 @@ class TabLayout extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius1),
         color: isPressed ? appColors.pinkColor : appColors.seconderColor,
       ),
-      constraints: const BoxConstraints(
-        minWidth: 32.0,
-      ),
-      margin: const EdgeInsets.only(left: padding3),
+      constraints: BoxConstraints(minWidth: 32.0, maxHeight: 24.0.sp),
       padding: const EdgeInsets.symmetric(horizontal: padding3),
       child: Text(
         tabTitle,
+        textAlign: TextAlign.center,
         style: isPressed ? textStyles.bodyLarge2 : textStyles.bodyMedium,
       ),
     );
-  }
-}
-
-class TodaysNewsArticle extends StatelessWidget {
-  const TodaysNewsArticle({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container();
   }
 }
 
@@ -184,65 +193,57 @@ class TabViewLayout extends StatelessWidget {
   final ArticleEntity article;
   final AppTextStyles appTextStyles;
   final Color imagePlacementColor;
+
   final double fullWidth;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(padding3),
-      child: Expanded(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-                height: 84,
-                width: fullWidth / 3 - 24.0,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(radius1),
-                  child: CachedNetworkImage(
-                    fit: BoxFit.cover,
-                    imageUrl: article.urlToImage,
-                    placeholder: (context, url) => Container(
-                        color: imagePlacementColor,
-                        height: double.maxFinite,
-                        width: double.maxFinite),
-                    errorWidget: (context, url, error) => Container(
-                        color: imagePlacementColor,
-                        height: double.maxFinite,
-                        width: double.maxFinite),
-                  ),
-                )),
-            const SizedBox(width: padding2),
-            Expanded(
-              // height: 84.0,
-              // width: fullWidth - (fullWidth / 3 + 24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    article.title,
-                    maxLines: 2,
-                    style: appTextStyles.bodyMedium,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        article.source.name!,
-                        style: appTextStyles.bodySmall,
-                      ),
-                      // Text(
-                      //   article.publishedAt!.day.toString(),
-                      //   style: appTextStyles.bodySmall,
-                      // ),
-                    ],
-                  ),
-                ],
+    return SizedBox(
+      height: 84.0.sp,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            flex: 1,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(radius1),
+              child: CachedNetworkImage(
+                fit: BoxFit.fitHeight,
+                height: 84.0.sp,
+                imageUrl: article.urlToImage,
+                placeholder: (context, url) => Container(
+                    color: imagePlacementColor,
+                    height: double.maxFinite,
+                    width: double.maxFinite),
+                errorWidget: (context, url, error) => Container(
+                    color: imagePlacementColor,
+                    height: double.maxFinite,
+                    width: double.maxFinite),
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: padding3),
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  article.title,
+                  maxLines: 3,
+                  style: appTextStyles.bodyMedium,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  article.source.name!,
+                  style: appTextStyles.bodySmall,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
