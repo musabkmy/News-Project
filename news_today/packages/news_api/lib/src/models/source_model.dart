@@ -25,7 +25,7 @@ class SourceModel implements SourceBase {
       id: json['id'].toString().valueOrEmpty,
       name: json['name'].toString().valueOrEmpty,
       description: json['description'].toString().valueOrEmpty,
-      favIconURL: (json['url'] != null
+      favIconURL: (json['url'] != null && json['url'] != ''
           ? (json['url'] as String).extractBaseUrl() + favIcon
           : ''),
       category: ArticleCategory.values.firstWhere(

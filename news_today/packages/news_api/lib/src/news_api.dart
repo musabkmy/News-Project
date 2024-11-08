@@ -6,7 +6,15 @@ abstract class NewsApi {
   Future<List<ArticleEntity>> fetchTopNews();
   Future<Map<ArticleCategory, List<ArticleEntity>>> fetchTodaysNews(
       List<SourceEntity> sourcesEntity);
+  Future<String> fetchFullContent(
+      {required String contentURL, required String contentInfo});
   Future<void> saveNews(List<ArticleModel> news);
+}
+
+///Networking Exception
+class NetworkException implements Exception {
+  final String message;
+  NetworkException([this.message = 'There is no network connection']);
 }
 
 /// Exception thrown when fetching sources fails.
@@ -26,3 +34,9 @@ class FetchTodaysArticlesFailure implements Exception {}
 
 /// Exception thrown when not finding articles.
 class TodaysArticlesNotFoundException implements Exception {}
+
+///Fetching Article content exception
+class FetchArticleContentException implements Exception {
+  final String message;
+  FetchArticleContentException([this.message = 'Content couldn\'t be fetched']);
+}

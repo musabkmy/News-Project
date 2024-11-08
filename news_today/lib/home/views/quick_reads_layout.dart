@@ -21,14 +21,6 @@ class QuickReadsLayout extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Padding(
-        //   padding:
-        //       EdgeInsets.symmetric(horizontal: spPadding1, vertical: padding3),
-        //   child: Text(
-        //     'Quick Reads',
-        //     style: appTextStyles.titleLarge,
-        //   ),
-        // ),
         Container(
           height: 90.0.sp,
           // padding: EdgeInsets.only(left: spPadding1),
@@ -39,6 +31,7 @@ class QuickReadsLayout extends StatelessWidget {
             separatorBuilder: (context, index) =>
                 const SizedBox(width: padding3),
             itemBuilder: (context, index) {
+              // print(sources[index].favIconURL!);
               return Container(
                 width: 70.0.sp,
                 margin: EdgeInsets.only(
@@ -64,11 +57,18 @@ class QuickReadsLayout extends StatelessWidget {
                           color: appColors.seconderColor),
                       child: CachedNetworkImage(
                         // fit: BoxFit.contain,
-                        imageUrl: sources[index].favIconURL!,
+                        // imageUrl: 'https://copilot.microsoft.com/favicon.ico',
+                        imageUrl: sources[index].favIconURL! != ''
+                            ? sources[index].favIconURL!
+                            : 'https://www.google.com/favicon.ico',
                         placeholder: (context, url) => const SizedBox(
                             height: double.maxFinite, width: double.maxFinite),
                         errorWidget: (context, url, error) => const SizedBox(
                             height: double.maxFinite, width: double.maxFinite),
+                        errorListener: (value) {
+                          print(value.toString());
+                        },
+                        // cacheManager: ,
                       ),
                     ),
                     // Text(sources[index].name!,

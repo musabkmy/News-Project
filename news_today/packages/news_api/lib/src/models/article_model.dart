@@ -1,9 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:news_api/src/utils/string_extension.dart';
+import 'package:uuid/uuid.dart';
 
 import '../entities/article_entity.dart';
 import '../entities/source_basic.dart';
-
-import 'package:uuid/uuid.dart';
 
 class ArticleModel {
   // static int _liveArticleIdCounter = 0; // Counter for live articles
@@ -15,7 +15,7 @@ class ArticleModel {
   final String author; // Author of the article
   final String url; // URL of the article
   final String urlToImage; // URL to the article's image
-  final DateTime? publishedAt; // Publication date of the article
+  final String? publishedAt; // Publication date of the article
   final String content; // Content of the article
   final SourceBasic source; // Source of the article
   bool isSavedArticle;
@@ -60,8 +60,8 @@ class ArticleModel {
       url: json['url'].toString().valueOrEmpty,
       urlToImage: json['urlToImage'].toString().valueOrEmpty,
       publishedAt: json['publishedAt'].toString().isNullOrEmpty
-          ? null
-          : DateTime.parse(json['publishedAt']),
+          ? ''
+          : json['publishedAt'].toString(),
       content: json['content'].toString().valueOrEmpty,
       source: SourceBasic(
         id: json['source']['id'].toString().valueOrEmpty,

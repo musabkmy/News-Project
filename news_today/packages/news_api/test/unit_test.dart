@@ -47,4 +47,37 @@ void main() {
   });
 
   test('opening article url', () {});
+
+  group('Fetching article Content', () {
+    test('check the validity of contentInfo', () async {
+      bool isValid;
+      String? contentStart;
+      int? remainChar;
+      (
+        isValid,
+        contentStart,
+        remainChar
+      ) = extractContentStartAndRemainingChars(
+          'On the campaign trail, Trump went out of his way to court their favor. In July, speaking to thousands of bitcoiners at a conference in Nashville, Tennessee, Trump duly sang from the bitcoin hymn shee… [+2014 chars]');
+      print('''isValid: $isValid ,
+        contentStart; $contentStart,
+        remainChar; $remainChar''');
+
+      if (isValid) {
+        await fetchAndExtractCleanContent(
+          "https://www.wired.com/story/trump-crypto-support/",
+          contentStart!,
+          remainChar!,
+        );
+      }
+    });
+
+    test('get the article content', () async {
+      await newsApi.fetchFullContent(
+          contentURL:
+              'https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/kyle-shanahan-stays-coy-about-christian-mccaffrey',
+          contentInfo:
+              'The season began with the 49ers playing games about the availability of running back Christian McCaffrey. Now that hes inching toward his 2024 debut, the games continue. Asked by reporters when a de… [+1696 chars]');
+    });
+  });
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -42,7 +41,7 @@ class App extends StatelessWidget {
               ),
             ),
             BlocProvider<NewsCubit>(
-              create: (context) => NewsCubit(),
+              create: (context) => NewsCubit(newsRepository),
             ),
           ],
           child: BlocBuilder<ThemeCubit, ThemeState>(

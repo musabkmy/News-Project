@@ -7,7 +7,7 @@ import 'package:news_api/news_api.dart';
 import 'package:news_today/src/app.dart';
 import 'package:news_today/src/app_block_observer.dart';
 
-void bootstrap({required NewsApi newsApi}) async {
+void bootstrap() async {
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
   // final settingsController = SettingsController(SettingsService());

@@ -3,12 +3,21 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:news_api/news_api.dart';
+import 'package:news_today/home/cubit/helpers/error_messages.dart';
 
 part 'news_state.dart';
 
 class NewsCubit extends Cubit<NewsState> {
-  NewsCubit() : super(NewsState());
-  final NewsApi _newsApi = NewsOpenApi();
+  NewsCubit(this._newsApi) : super(NewsState());
+  final NewsApi _newsApi;
+  //  = NewsOpenApi();
+
+  @override
+  Future<void> close() {
+    // Log a message when close is called
+    print('NewsCubit is being closed');
+    return super.close();
+  }
 
   Future<void> initiate() async {
     emit(state.copyWith(status: NewsStatus.loading));
@@ -22,7 +31,7 @@ class NewsCubit extends Cubit<NewsState> {
 
       topNews = (await _newsApi.fetchTopNews());
       // if (topNews.isEmpty) throw TopArticlesNotFoundException();
-      // print('Top News: $topNews');
+      print('Top News: $topNews');
 
       todaysNews = (await _newsApi.fetchTodaysNews(sources));
       // if (todaysNews.isEmpty) throw TodaysArticlesNotFoundException();
@@ -81,5 +90,158 @@ class NewsCubit extends Cubit<NewsState> {
     }
     print('return []');
     return [];
+  }
+
+  //set selected article and article loading to true if it found, otherwise do noting
+  void setSelectedArticle(
+      {required String articleId,
+      ArticleCategory articleCategory = ArticleCategory.unknown}) {
+    int index;
+    //check if in top new
+    if (articleCategory.isUnknown) {
+      index = state.topNews!.indexWhere((item) => item.id == articleId);
+      if (index != -1) {
+        emit(state.copyWith(
+          selectedArticle: state.topNews![index],
+          contentLoadStatus: ContentLoadStatus.loading,
+        ));
+      }
+    } else {
+      index = state.todaysNews![articleCategory]!
+          .indexWhere((item) => item.id == articleId);
+      if (index != -1) {
+        emit(state.copyWith(
+          selectedArticle: state.todaysNews![articleCategory]![index],
+          contentLoadStatus: ContentLoadStatus.loading,
+        ));
+      }
+    }
+  }
+
+  //fetch article content -- in top news or todays news
+  Future<void> fetchFullContent(
+      {required String articleId,
+      ArticleCategory articleCategory = ArticleCategory.unknown}) async {
+    print('inError: ${state.status}');
+
+    if (state.status.isSuccess) {
+      // emit(state.copyWith(contentLoadStatus: ContentLoadStatus.loading));
+      try {
+        int articleIndex = -1;
+        String? contentURL;
+        String? contentInfo;
+        late String returnedFullContent = '';
+
+        //should be in the top news articles
+        if (articleCategory == ArticleCategory.unknown) {
+          List<ArticleEntity> topArticles = state.topNews!;
+          articleIndex =
+              topArticles.indexWhere((article) => article.id == articleId);
+          if (articleIndex == -1) {
+            emit(state.copyWith(
+                contentLoadStatus: ContentLoadStatus.failure,
+                contentLoadErrorMessage: CubitErrors.articleNotFound));
+            return; // Early return to stop further processing
+          }
+          //if already fetched
+          else if (topArticles[articleIndex].fullContentStatus.isFetched) {
+            emit(state.copyWith(
+                contentLoadStatus: ContentLoadStatus.success,
+                selectedArticle: topArticles[articleIndex]));
+            return;
+          }
+
+          contentURL = topArticles[articleIndex].url;
+          contentInfo = topArticles[articleIndex].content;
+          print('in top - contentURL: $contentURL - contentInfo $contentInfo');
+
+          //fetched the content
+          returnedFullContent = await _newsApi.fetchFullContent(
+              contentURL: contentURL, contentInfo: contentInfo);
+
+          // Update the article with the fetched content
+          topArticles[articleIndex] = topArticles[articleIndex].copyWith(
+              fullContent:
+                  returnedFullContent.isEmpty ? null : returnedFullContent,
+              fullContentStatus: returnedFullContent.isEmpty
+                  ? FullContentStatus.initial
+                  : FullContentStatus.fetched);
+
+          //change the value and define selected article
+          emit(state.copyWith(
+              contentLoadStatus: ContentLoadStatus.success,
+              topNews: List<ArticleEntity>.from(topArticles)));
+        }
+        //in the category articles
+        else if (state.todaysNews!.containsKey(articleCategory)) {
+          print('in todays news');
+          List<ArticleEntity> categoryArticles =
+              state.todaysNews![articleCategory]!;
+          articleIndex =
+              categoryArticles.indexWhere((article) => article.id == articleId);
+          if (articleIndex == -1) {
+            emit(state.copyWith(
+                contentLoadStatus: ContentLoadStatus.failure,
+                contentLoadErrorMessage: CubitErrors.articleNotFound));
+            return; // Early return to stop further processing
+          }
+          //already fetched
+          else if (categoryArticles[articleIndex].fullContentStatus.isFetched) {
+            emit(state.copyWith(
+                contentLoadStatus: ContentLoadStatus.success,
+                selectedArticle: categoryArticles[articleIndex]));
+            return;
+          }
+
+          contentURL = categoryArticles[articleIndex].url;
+          contentInfo = categoryArticles[articleIndex].content;
+          print(
+              'in todays - contentURL: $contentURL - contentInfo $contentInfo');
+
+          //fetched the content
+          returnedFullContent = await _newsApi.fetchFullContent(
+              contentURL: contentURL, contentInfo: contentInfo);
+
+          print('returnedFullContent: $returnedFullContent');
+
+          // Update the article with the fetched content
+          categoryArticles[articleIndex] = categoryArticles[articleIndex]
+              .copyWith(
+                  fullContent:
+                      returnedFullContent.isEmpty ? null : returnedFullContent,
+                  fullContentStatus: returnedFullContent.isEmpty
+                      ? FullContentStatus.initial
+                      : FullContentStatus.fetched);
+
+          //emitting the state
+          emit(state.copyWith(
+              contentLoadStatus: ContentLoadStatus.success,
+              todaysNews: Map<ArticleCategory, List<ArticleEntity>>.from(
+                  state.todaysNews!)));
+        }
+      } on Exception catch (e) {
+        emit(state.copyWith(
+            contentLoadStatus: ContentLoadStatus.failure,
+            contentLoadErrorMessage: e.toString()));
+      } catch (e) {
+        emit(state.copyWith(
+            contentLoadStatus: ContentLoadStatus.failure,
+            contentLoadErrorMessage: e.toString()));
+      }
+    } else {
+      emit(state.copyWith(
+          contentLoadStatus: ContentLoadStatus.failure,
+          contentLoadErrorMessage: CubitErrors.unknownError));
+    }
+    print(
+        'article body STATE: ${state.contentLoadStatus} - ${state.contentLoadErrorMessage}');
+  }
+
+  //crucial to prevent using outdated information
+  void resetContentLoadStatus() {
+    emit(state.copyWith(
+        contentLoadStatus: ContentLoadStatus.initial,
+        selectedArticle: null,
+        contentLoadErrorMessage: ''));
   }
 }

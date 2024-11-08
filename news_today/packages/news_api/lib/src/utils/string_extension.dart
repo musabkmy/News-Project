@@ -10,7 +10,7 @@ extension StringExtensions on String? {
   }
 
   String extractBaseUrl() {
-    if (this!.startsWith('https://')) {
+    if (this!.startsWith('https://') || this!.startsWith('http://')) {
       int endIndex = this!.indexOf('/', 8); // Start searching after "https://"
       // If there is no '/', return the entire this
       if (endIndex == -1) {

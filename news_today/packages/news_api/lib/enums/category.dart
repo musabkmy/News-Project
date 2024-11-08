@@ -13,3 +13,8 @@ enum ArticleCategory {
 
   const ArticleCategory(this.value);
 }
+
+extension ArticleCategoryExt on ArticleCategory {
+  ///when the article is undefined
+  bool get isUnknown => this == ArticleCategory.unknown;
+}

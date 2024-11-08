@@ -41,17 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     printScreenInformation(context);
-    final themeCubit = BlocProvider.of<ThemeCubit>(context);
     return Scaffold(
       // appBar: AppBar(
       //   centerTitle: false,
       //   title: Text('NEWS TODAY', style: themeCubit.appTextStyles.headline),
       // ),
-      body: BlocBuilder<NewsCubit, NewsState>(builder: (context, newsState) {
-        if (newsState.status == NewsStatus.success) {
+      body: Builder(builder: (context) {
+        final ThemeCubit themeCubit = context.watch<ThemeCubit>();
+        final NewsStatus newsStatus = context.watch<NewsCubit>().state.status;
+
+        if (newsStatus == NewsStatus.success) {
           print('in success');
           return const HomeBody();
-        } else if (newsState.status == NewsStatus.loading) {
+        } else if (newsStatus == NewsStatus.loading) {
           return const LinearProgressIndicator();
         }
         return Text('something went wrong',

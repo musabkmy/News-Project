@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_api/news_api.dart';
+import 'package:news_today/article_content/views/content_screen.dart';
 import 'package:news_today/home/cubit/news_cubit.dart';
 import 'package:news_today/home/helpers/shared.dart';
 import 'package:news_today/themes/App_theme.dart';
@@ -25,34 +26,36 @@ class TopNewsLayout extends StatelessWidget {
             child: Text('Top News',
                 style: themeState.themeData.appTextStyles.titleLarge),
           ),
-          BlocBuilder<NewsCubit, NewsState>(builder: (context, newsState) {
-            return Container(
-              height: 160.0.h,
-              constraints: const BoxConstraints(maxHeight: 340.0),
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: newsState.topNews!.length,
-                separatorBuilder: (context, index) =>
-                    SizedBox(width: spPadding1),
-                itemBuilder: (context, index) {
-                  return Container(
-                    margin: EdgeInsets.only(
-                        left: index == 0 ? spPadding1 : 0.0,
-                        right: index == newsState.topNews!.length - 1
-                            ? spPadding1
-                            : 0.0),
-                    child: TopNewsArticle(
-                      article: newsState.topNews![index],
-                      articleTitleStyle:
-                          themeState.themeData.appTextStyles.bodyLarge2,
-                      placementColor:
-                          themeState.themeData.appColors.accentColor,
-                    ),
-                  );
-                },
-              ),
-            );
-          }),
+          BlocSelector<NewsCubit, NewsState, List<ArticleEntity>?>(
+              selector: (state) => state.topNews,
+              builder: (context, newsState) {
+                return Container(
+                  height: 160.0.h,
+                  constraints: const BoxConstraints(maxHeight: 340.0),
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: newsState!.length,
+                    separatorBuilder: (context, index) =>
+                        SizedBox(width: spPadding1),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: EdgeInsets.only(
+                            left: index == 0 ? spPadding1 : 0.0,
+                            right: index == newsState.length - 1
+                                ? spPadding1
+                                : 0.0),
+                        child: TopNewsArticle(
+                          article: newsState[index],
+                          articleTitleStyle:
+                              themeState.themeData.appTextStyles.bodyLarge2,
+                          placementColor:
+                              themeState.themeData.appColors.accentColor,
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }),
         ],
       );
     });
@@ -71,54 +74,72 @@ class TopNewsArticle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('image url: ${article.urlToImage}');
-    return Container(
-      width: 0.6.sw,
-      constraints: const BoxConstraints(minWidth: 340.0),
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(radius1),
-            child: CachedNetworkImage(
-              height: double.maxFinite,
-              width: double.maxFinite,
-              fit: BoxFit.cover,
-              imageUrl: article.urlToImage,
-              color: placementColor.withOpacity(0.5), // Color tint
-              colorBlendMode: BlendMode.multiply,
-              placeholder: (context, url) => Container(
-                  decoration: BoxDecoration(
-                      color: placementColor.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(radius2)),
+    // print('image url: ${article.urlToImage}');
+    return GestureDetector(
+      onTap: () {
+        context.read<NewsCubit>().setSelectedArticle(articleId: article.id);
+        // await context.read<NewsCubit>().fetchFullContent(articleId: article.id);
+        if (context.read<NewsCubit>().state.contentLoadStatus.isLoading) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ContentScreen(articleId: article.id)),
+          );
+        } else {
+          print('couldn\'t make it to the content');
+        }
+      },
+      child: Container(
+        width: 0.6.sw,
+        constraints: const BoxConstraints(minWidth: 340.0),
+        child: Stack(
+          children: [
+            Hero(
+              tag: article.id,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(radius1),
+                child: CachedNetworkImage(
                   height: double.maxFinite,
-                  width: double.maxFinite),
-              errorWidget: (context, url, error) => Container(
-                  decoration: BoxDecoration(
-                      color: placementColor.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(radius2)),
-                  height: double.maxFinite,
-                  width: double.maxFinite),
-            ),
-          ),
-          Container(
-            alignment: Alignment.bottomCenter,
-            padding: const EdgeInsets.all(padding3),
-            child: Text(
-              article.title,
-              style: articleTitleStyle.copyWith(
-                shadows: [
-                  Shadow(
-                    blurRadius: 10.0,
-                    color: placementColor.withOpacity(0.4),
-                    offset: const Offset(2.0, 2.0),
-                  ),
-                ],
+                  width: double.maxFinite,
+                  fit: BoxFit.cover,
+                  imageUrl: article.urlToImage,
+                  color: placementColor.withOpacity(0.5), // Color tint
+                  colorBlendMode: BlendMode.multiply,
+                  placeholder: (context, url) => Container(
+                      decoration: BoxDecoration(
+                          color: placementColor.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(radius2)),
+                      height: double.maxFinite,
+                      width: double.maxFinite),
+                  errorWidget: (context, url, error) => Container(
+                      decoration: BoxDecoration(
+                          color: placementColor.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(radius2)),
+                      height: double.maxFinite,
+                      width: double.maxFinite),
+                ),
               ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            Container(
+              alignment: Alignment.bottomCenter,
+              padding: const EdgeInsets.all(padding3),
+              child: Text(
+                article.title,
+                style: articleTitleStyle.copyWith(
+                  shadows: [
+                    Shadow(
+                      blurRadius: 10.0,
+                      color: placementColor.withOpacity(0.4),
+                      offset: const Offset(2.0, 2.0),
+                    ),
+                  ],
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

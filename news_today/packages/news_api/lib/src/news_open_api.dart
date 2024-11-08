@@ -4,6 +4,9 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' as html_parser;
+import 'package:html/dom.dart';
+import 'package:sanitize_html/sanitize_html.dart';
 import 'package:news_api/config/config.dart';
 import 'package:news_api/news_api.dart';
 
@@ -150,6 +153,66 @@ class NewsOpenApi implements NewsApi {
     } catch (err) {
       log(err.toString());
       rethrow;
+    }
+  }
+
+  @override
+  Future<String> fetchFullContent(
+      {required String contentURL, required String contentInfo}) async {
+    print('in data layer');
+
+    bool isValid;
+    String? contentStart;
+    int? remainChar;
+
+//check for a url to be matched to news open api content link and return the url and the remaining chars to be retrieved
+    (isValid, contentStart, remainChar) =
+        extractContentStartAndRemainingChars(contentInfo);
+    if (!isValid || contentStart!.isEmpty) {
+      throw FetchArticleContentException('Content info is not in right form');
+    }
+
+    try {
+      final response = await http.get(Uri.parse(contentURL));
+
+      if (response.statusCode == 200) {
+        final rawContent = response.body;
+        print('200');
+        // Parse HTML and extract text
+        Document document = html_parser.parse(rawContent);
+        final parsedText = document.body?.text ?? '';
+        final cleanedContent = sanitizeHtml(parsedText);
+
+        // print('Extracted and cleaned content:');
+        // print('Cleaned: ${cleanedContent.substring(1000, 1400)}');
+
+        // Search for the start string in the entire body
+        int startIndex = cleanedContent.indexOf(
+            contentStart.substring(0, getSearchLimit(cleanedContent.length)));
+        if (startIndex != -1) {
+          // Calculate the end index based on the provided length
+          int endIndex = startIndex + contentStart.length + remainChar!;
+          if (endIndex > cleanedContent.length) {
+            endIndex = cleanedContent.length;
+            // print('endIndex out of bound.');
+          }
+          print('got it!!');
+          print(cleanedContent.substring(startIndex, endIndex));
+          return cleanedContent.substring(startIndex, endIndex);
+        } else {
+          throw FetchArticleContentException();
+          // print('Start string not found in the content.');
+        }
+      } else {
+        print('no 200');
+        throw NetworkException();
+      }
+    } on NetworkException catch (e) {
+      throw NetworkException(e.message);
+    } on FetchArticleContentException catch (e) {
+      throw FetchArticleContentException(e.message);
+    } catch (e) {
+      throw Exception('Error: $e');
     }
   }
 

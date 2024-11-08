@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -198,52 +200,64 @@ class TabViewLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 84.0.sp,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            flex: 1,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(radius1),
-              child: CachedNetworkImage(
-                fit: BoxFit.fitHeight,
-                height: 84.0.sp,
-                imageUrl: article.urlToImage,
-                placeholder: (context, url) => Container(
-                    color: imagePlacementColor,
-                    height: double.maxFinite,
-                    width: double.maxFinite),
-                errorWidget: (context, url, error) => Container(
-                    color: imagePlacementColor,
-                    height: double.maxFinite,
-                    width: double.maxFinite),
+    return GestureDetector(
+      onTap: () {
+        // context.read<NewsCubit>().fetchFullContent(
+        //       articleId: article.id,
+        //       //TODO:
+        //       articleCategory:
+        //     );
+      },
+      child: SizedBox(
+        height: 84.0.sp,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              flex: 1,
+              child: Hero(
+                tag: article.id,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(radius1),
+                  child: CachedNetworkImage(
+                    fit: BoxFit.fitHeight,
+                    height: 84.0.sp,
+                    imageUrl: article.urlToImage,
+                    placeholder: (context, url) => Container(
+                        color: imagePlacementColor,
+                        height: double.maxFinite,
+                        width: double.maxFinite),
+                    errorWidget: (context, url, error) => Container(
+                        color: imagePlacementColor,
+                        height: double.maxFinite,
+                        width: double.maxFinite),
+                  ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: padding3),
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  article.title,
-                  maxLines: 3,
-                  style: appTextStyles.bodyMedium,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  article.source.name!,
-                  style: appTextStyles.bodySmall,
-                ),
-              ],
+            const SizedBox(width: padding3),
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    article.title,
+                    maxLines: 3,
+                    style: appTextStyles.bodyMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    article.source.name!,
+                    style: appTextStyles.bodySmall,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
