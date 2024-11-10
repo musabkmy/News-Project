@@ -12,6 +12,7 @@ import 'package:news_today/themes/App_theme.dart';
 import 'package:news_today/themes/app_colors.dart';
 import 'package:news_today/themes/app_text_styles.dart';
 import 'package:news_today/themes/cubit/theme_cubit.dart';
+import 'package:news_today/views/content_screen.dart';
 
 class TodaysNewsLayout extends StatefulWidget {
   const TodaysNewsLayout({super.key});
@@ -26,11 +27,14 @@ class _TodaysNewsLayoutState extends State<TodaysNewsLayout>
   late List<ArticleCategory> _availableCategories;
   late TabController _tabController;
   late List<List<ArticleEntity>> _fetchedArticles;
+  // late ScrollController _todaysNewsScroll;
+
   int currentTabIndex = 0;
   @override
   void initState() {
     super.initState();
     //retrieving available categories
+    // _todaysNewsScroll = ScrollController();
     _newsCubit = BlocProvider.of<NewsCubit>(context);
     _availableCategories = _newsCubit.getAvailableCategories();
     _fetchedArticles = List.generate(_availableCategories.length, (_) => []);
@@ -47,6 +51,7 @@ class _TodaysNewsLayoutState extends State<TodaysNewsLayout>
 
   @override
   void dispose() {
+    // _todaysNewsScroll.dispose();
     _tabController.dispose();
     _newsCubit.close();
     super.dispose();
@@ -57,11 +62,14 @@ class _TodaysNewsLayoutState extends State<TodaysNewsLayout>
     final double fullWidth = MediaQuery.of(context).size.width;
     final double fullHeight = MediaQuery.of(context).size.height;
     return BlocBuilder<ThemeCubit, ThemeState>(builder: (context, themeState) {
+      // final scrollProvider = Provider.of<ScrollProvider>(context);
       return SizedBox(
-        height: fullHeight - 140.0,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        height: fullHeight * 0.8,
+        child: ListView(
+          // controller: _todaysNewsScroll,
+          physics: const NeverScrollableScrollPhysics(),
+          // mainAxisSize: MainAxisSize.min,
+          // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               padding: EdgeInsets.symmetric(
@@ -102,48 +110,44 @@ class _TodaysNewsLayoutState extends State<TodaysNewsLayout>
             SizedBox(
               height: spPadding1,
             ),
-            Flexible(
-              fit: FlexFit.tight,
-              // height: fullWidth - 48.0,
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: spPadding1),
-                child: TabBarView(
-                  controller: _tabController,
-                  children:
-                      _availableCategories.asMap().entries.map((category) {
-                    _fetchedArticles[category.key] =
-                        _newsCubit.getCategoryArticles(category.value);
-                    print(
-                        '_fetchedArticles: ${_fetchedArticles[category.key].length}');
-                    return _fetchedArticles[category.key].isEmpty
-                        ? const SizedBox()
-                        : ListView.separated(
-                            shrinkWrap: true,
-                            physics: const ClampingScrollPhysics(),
-                            itemCount: _fetchedArticles[category.key].length,
-                            separatorBuilder: (context, index) => SizedBox(
-                              height: spPadding2,
-                            ),
-                            itemBuilder: (context, index) {
-                              if (index >=
-                                  _fetchedArticles[category.key].length) {
-                                // Logging and handling out-of-range index
-                                print('Index out of range: $index');
-                                return const SizedBox();
-                              }
-                              return TabViewLayout(
-                                article: _fetchedArticles[category.key][index],
-                                appTextStyles:
-                                    themeState.themeData.appTextStyles,
-                                fullWidth: fullWidth,
-                                imagePlacementColor: themeState
-                                    .themeData.appColors.accentColor
-                                    .withOpacity(0.4),
-                              );
-                            },
-                          );
-                  }).toList(),
-                ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: spPadding1),
+              height: fullHeight * 0.8,
+              child: TabBarView(
+                controller: _tabController,
+                children: _availableCategories.asMap().entries.map((category) {
+                  _fetchedArticles[category.key] =
+                      _newsCubit.getCategoryArticles(category.value);
+                  print(
+                      '_fetchedArticles: ${_fetchedArticles[category.key].length}');
+                  return _fetchedArticles[category.key].isEmpty
+                      ? const SizedBox()
+                      : ListView.separated(
+                          shrinkWrap: true,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: _fetchedArticles[category.key].length,
+                          separatorBuilder: (context, index) => SizedBox(
+                            height: spPadding2,
+                          ),
+                          itemBuilder: (context, index) {
+                            if (index >=
+                                _fetchedArticles[category.key].length) {
+                              // Logging and handling out-of-range index
+                              print('Index out of range: $index');
+                              return const SizedBox();
+                            }
+                            return TabViewLayout(
+                              article: _fetchedArticles[category.key][index],
+                              articleCategory: category.value,
+                              appTextStyles: themeState.themeData.appTextStyles,
+                              fullWidth: fullWidth,
+                              imagePlacementColor: themeState
+                                  .themeData.appColors.accentColor
+                                  .withOpacity(0.4),
+                            );
+                          },
+                        );
+                }).toList(),
               ),
             ),
           ],
@@ -190,10 +194,12 @@ class TabViewLayout extends StatelessWidget {
   const TabViewLayout(
       {super.key,
       required this.article,
+      required this.articleCategory,
       required this.appTextStyles,
       required this.fullWidth,
       required this.imagePlacementColor});
   final ArticleEntity article;
+  final ArticleCategory articleCategory;
   final AppTextStyles appTextStyles;
   final Color imagePlacementColor;
 
@@ -203,11 +209,22 @@ class TabViewLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // context.read<NewsCubit>().fetchFullContent(
-        //       articleId: article.id,
-        //       //TODO:
-        //       articleCategory:
-        //     );
+        print('articleId: ${article.id}, articleCategory: $articleCategory');
+        context.read<NewsCubit>().setSelectedArticle(
+            articleId: article.id, articleCategory: articleCategory);
+        // await context.read<NewsCubit>().fetchFullContent(articleId: article.id);
+        if (context.read<NewsCubit>().state.contentLoadStatus.isLoading) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ContentScreen(
+                    articleId: article.id, articleCategory: articleCategory)),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(appSnackBar(
+              content: 'couldn\'t make it to the content',
+              textStyle: appTextStyles.bodyMedium));
+        }
       },
       child: SizedBox(
         height: 84.0.sp,

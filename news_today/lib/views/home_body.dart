@@ -8,7 +8,7 @@ import 'package:news_today/themes/app_theme.dart';
 import 'package:news_today/themes/cubit/theme_cubit.dart';
 
 class HomeBody extends StatelessWidget {
-  const HomeBody({super.key});
+  HomeBody({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +16,13 @@ class HomeBody extends StatelessWidget {
       builder: (context) {
         // final newsState = BlocProvider.of<NewsCubit>(context).state;
         final themeState = BlocProvider.of<ThemeCubit>(context).state;
+        // final scrollProvider = Provider.of<ScrollProvider>(context);
 
         return SafeArea(
           minimum: EdgeInsets.only(top: spPadding1),
           child: ListView(
             shrinkWrap: true,
+            // controller: _homeScrollController,
             physics: const PageScrollPhysics(),
             children: [
               Text(

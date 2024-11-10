@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (newsStatus == NewsStatus.success) {
           print('in success');
-          return const HomeBody();
+          return HomeBody();
         } else if (newsStatus == NewsStatus.loading) {
           return const LinearProgressIndicator();
         }

@@ -11,3 +11,11 @@ Widget appImagePlaceholder(Color color, {bool isCircle = false}) {
       height: double.maxFinite,
       width: double.maxFinite);
 }
+
+SnackBar appSnackBar({required String content, required TextStyle textStyle}) {
+  return SnackBar(
+      content: Text(
+    content,
+    style: textStyle,
+  ));
+}

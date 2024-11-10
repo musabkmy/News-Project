@@ -4,9 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_api/news_api.dart';
 import 'package:news_today/cubit/news_cubit.dart';
+import 'package:news_today/providers/scroll_state.dart';
 import 'package:news_today/views/home_screen.dart';
 import 'package:news_today/themes/App_theme.dart';
 import 'package:news_today/themes/cubit/theme_cubit.dart';
+import 'package:provider/provider.dart';
 
 class App extends StatelessWidget {
   // final NewsRepository userRepo;
@@ -46,17 +48,20 @@ class App extends StatelessWidget {
           ],
           child: BlocBuilder<ThemeCubit, ThemeState>(
             builder: (context, themeState) {
-              return ScreenUtilInit(
-                designSize: const Size(360, 690),
-                ensureScreenSize: true,
-                enableScaleWH: () => true,
-                // minTextAdapt: true,
-                enableScaleText: () => false,
-                child: MaterialApp(
-                  debugShowCheckedModeBanner: false,
-                  theme: themeState.themeData,
-                  themeMode: ThemeMode.dark,
-                  home: const HomeScreen(),
+              return ChangeNotifierProvider<ScrollProvider>(
+                create: (BuildContext context) => ScrollProvider(),
+                child: ScreenUtilInit(
+                  designSize: const Size(360, 690),
+                  ensureScreenSize: true,
+                  enableScaleWH: () => true,
+                  // minTextAdapt: true,
+                  enableScaleText: () => false,
+                  child: MaterialApp(
+                    debugShowCheckedModeBanner: false,
+                    theme: themeState.themeData,
+                    themeMode: ThemeMode.dark,
+                    home: const HomeScreen(),
+                  ),
                 ),
               );
             },

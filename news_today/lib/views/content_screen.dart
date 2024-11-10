@@ -8,8 +8,12 @@ import 'package:news_today/shared_widgets.dart';
 import 'package:news_today/themes/cubit/theme_cubit.dart';
 
 class ContentScreen extends StatefulWidget {
-  const ContentScreen({super.key, required this.articleId});
+  const ContentScreen(
+      {super.key,
+      required this.articleId,
+      this.articleCategory = ArticleCategory.unknown});
   final String articleId;
+  final ArticleCategory articleCategory;
 
   @override
   State<ContentScreen> createState() => _ContentScreenState();
@@ -29,9 +33,8 @@ class _ContentScreenState extends State<ContentScreen> {
       print('mounted');
       return;
     }
-    await context
-        .read<NewsCubit>()
-        .fetchFullContent(articleId: widget.articleId);
+    await context.read<NewsCubit>().fetchFullContent(
+        articleId: widget.articleId, articleCategory: widget.articleCategory);
   }
 
   @override
@@ -42,7 +45,14 @@ class _ContentScreenState extends State<ContentScreen> {
           // final ThemeCubit themeCubit = context.watch<ThemeCubit>();
           // final ContentLoadStatus contentLoadStatus =
           //     context.watch<NewsCubit>().state.contentLoadStatus;
-          return const ContentLayout();
+          return const SafeArea(
+            child: Stack(
+              children: [
+                TopScreenWidget(),
+                ContentLayout(),
+              ],
+            ),
+          );
         },
       ),
     );
@@ -57,7 +67,8 @@ class ContentLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: spPadding1),
+      margin: EdgeInsets.symmetric(horizontal: spPadding1)
+          .copyWith(top: spPadding4),
       child: Builder(
         builder: (context) {
           final ThemeCubit appTheme = context.watch<ThemeCubit>();
@@ -73,16 +84,20 @@ class ContentLayout extends StatelessWidget {
                 final ContentLoadStatus contentLoadStatus = state.$2;
                 print('article: ${article!.id}');
                 print('contentLoadStatus: $contentLoadStatus');
-                return SafeArea(
-                  child: ListView(children: [
-                    const TopScreenWidget(),
-                    Text(
-                      article.title,
-                      style: appTheme.appTextStyles.titleLarge,
-                    ),
-                    SizedBox(height: spPadding1),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(radius1),
+                return ListView(children: [
+                  Text(
+                    article.title.substring(
+                        0,
+                        article.title.contains('-')
+                            ? article.title.indexOf('-') - 1
+                            : article.title.length),
+                    style: appTheme.appTextStyles.titleLarge,
+                  ),
+                  SizedBox(height: spPadding1),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(radius2),
+                    child: Hero(
+                      tag: 'article-image${article.id}',
                       child: CachedNetworkImage(
                         imageUrl: article.urlToImage,
                         placeholder: (context, url) => appImagePlaceholder(
@@ -92,19 +107,19 @@ class ContentLayout extends StatelessWidget {
                                 appTheme.appColors.primaryColor),
                       ),
                     ),
-                    SizedBox(height: spPadding1),
-                    article.source.name == null
-                        ? const Placeholder()
-                        : Text(article.source.name!,
-                            style: appTheme.appTextStyles.bodyBoldSmall),
-                    Divider(
-                      height: spPadding3,
-                      thickness: 2.0,
-                      color: appTheme.appColors.seconderColor,
-                    ),
-                    LoadedLayout(),
-                  ]),
-                );
+                  ),
+                  SizedBox(height: spPadding1),
+                  Text(
+                      article.source.name! +
+                          (article.author == '' ? '' : ' • ${article.author}'),
+                      style: appTheme.appTextStyles.bodyBoldSmall),
+                  Divider(
+                    height: spPadding3,
+                    thickness: 2.0,
+                    color: appTheme.appColors.seconderColor,
+                  ),
+                  LoadedLayout(),
+                ]);
               });
         },
       ),
@@ -119,14 +134,20 @@ class TopScreenWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: padding4),
+    return Container(
+      height: spPadding4,
+      alignment: Alignment.centerLeft,
+      margin: EdgeInsets.symmetric(horizontal: spPadding05),
+      // padding: const EdgeInsets.only(bottom: padding4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           GestureDetector(
-            child: Icon(Icons.arrow_back_rounded,
-                color: context.watch<ThemeCubit>().appColors.accentColor),
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: context.watch<ThemeCubit>().appColors.accentColor,
+              size: spPadding3,
+            ),
             onTap: () {
               Navigator.of(context).pop();
             },

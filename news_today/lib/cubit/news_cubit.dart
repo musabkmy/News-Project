@@ -97,7 +97,7 @@ class NewsCubit extends Cubit<NewsState> {
 
   //set selected article and article loading to true if it found, otherwise do noting
   void setSelectedArticle(
-      {required String articleId,
+      {required String? articleId,
       ArticleCategory articleCategory = ArticleCategory.unknown}) {
     int index;
     //check if in top new
@@ -223,6 +223,7 @@ class NewsCubit extends Cubit<NewsState> {
           //emitting the state
           emit(state.copyWith(
               contentLoadStatus: ContentLoadStatus.success,
+              selectedArticle: categoryArticles[articleIndex],
               todaysNews: Map<ArticleCategory, List<ArticleEntity>>.from(
                   state.todaysNews!)));
         }

@@ -22,6 +22,10 @@ ThemeData appLightTheme() {
       splashFactory: NoSplash.splashFactory,
       // indicatorSize: 0.0,
     ),
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: appColors.primaryColor,
+      elevation: 4.0,
+    ),
   );
 }
 

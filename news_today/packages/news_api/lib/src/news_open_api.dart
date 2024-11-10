@@ -100,14 +100,16 @@ class NewsOpenApi implements NewsApi {
         }
         final List<dynamic> articlesJson = jsonResponse['articles'];
 
-        if (articlesJson.isEmpty) {
-          throw TopArticlesNotFoundException();
-        }
-        final List<ArticleModel> articles = articlesJson
+        final List<ArticleModel> articlesModel = articlesJson
             .map((response) =>
                 ArticleModel.fromJson(response as Map<String, dynamic>))
             .toList();
-        return articles.map((element) => element.toEntity()).toList();
+
+        articlesModel.removeWhere((element) => element.title == '[Removed]');
+        if (articlesModel.isEmpty) {
+          throw TopArticlesNotFoundException();
+        }
+        return articlesModel.map((element) => element.toEntity()).toList();
       } else {
         throw FetchTopArticlesFailure();
       }

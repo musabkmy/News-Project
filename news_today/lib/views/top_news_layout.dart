@@ -87,7 +87,9 @@ class TopNewsArticle extends StatelessWidget {
                 builder: (context) => ContentScreen(articleId: article.id)),
           );
         } else {
-          print('couldn\'t make it to the content');
+          ScaffoldMessenger.of(context).showSnackBar(appSnackBar(
+              content: 'couldn\'t make it to the content',
+              textStyle: articleTitleStyle));
         }
       },
       child: Container(
@@ -97,17 +99,20 @@ class TopNewsArticle extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(radius1),
-              child: CachedNetworkImage(
-                height: double.maxFinite,
-                width: double.maxFinite,
-                fit: BoxFit.cover,
-                imageUrl: article.urlToImage,
-                color: placementColor.withOpacity(0.5), // Color tint
-                colorBlendMode: BlendMode.multiply,
-                placeholder: (context, url) =>
-                    appImagePlaceholder(placementColor),
-                errorWidget: (context, url, error) =>
-                    appImagePlaceholder(placementColor),
+              child: Hero(
+                tag: 'article-image${article.id}',
+                child: CachedNetworkImage(
+                  height: double.maxFinite,
+                  width: double.maxFinite,
+                  fit: BoxFit.cover,
+                  imageUrl: article.urlToImage,
+                  color: placementColor.withOpacity(0.5), // Color tint
+                  colorBlendMode: BlendMode.multiply,
+                  placeholder: (context, url) =>
+                      appImagePlaceholder(placementColor),
+                  errorWidget: (context, url, error) =>
+                      appImagePlaceholder(placementColor),
+                ),
               ),
             ),
             Container(
