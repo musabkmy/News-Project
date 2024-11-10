@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:news_api/news_api.dart';
 
 class SourceEntity implements SourceBase {
@@ -8,37 +9,47 @@ class SourceEntity implements SourceBase {
   final String? description;
   final String? favIconURL;
   final ArticleCategory? category;
+  bool isImageFetchAvailable;
   // final String language;
   // final String country;
 
-  const SourceEntity({
+  SourceEntity({
     required this.id,
     required this.name,
     required this.description,
     required this.favIconURL,
     required this.category,
+    this.isImageFetchAvailable = true,
     // required this.language,
     // required this.country,
   });
 
   factory SourceEntity.defaultInstance() {
-    return const SourceEntity(
+    return SourceEntity(
         id: '',
         name: '',
         description: '',
         favIconURL: '',
-        category: ArticleCategory.unknown);
+        category: ArticleCategory.unknown,
+        isImageFetchAvailable: true);
   }
 
-  // Override == operator for custom equality check
-  @override
-  bool operator ==(Object other) {
-    //share same memory
-    if (identical(this, other)) return true;
-    return other is SourceEntity && other.id == id;
+  SourceEntity copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? favIconURL,
+    ArticleCategory? category,
+    bool? isImageFetchAvailable,
+  }) {
+    return SourceEntity(
+      id: this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      favIconURL: favIconURL ?? this.favIconURL,
+      category: category ?? this.category,
+      isImageFetchAvailable:
+          isImageFetchAvailable ?? this.isImageFetchAvailable,
+    );
   }
-
-  // Override hashCode to match the equality operator in hashCode / hashSet
-  @override
-  int get hashCode => id.hashCode;
 }

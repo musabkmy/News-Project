@@ -1,27 +1,33 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_api/news_api.dart';
-import 'package:news_today/home/helpers/shared.dart';
+import 'package:news_today/cubit/news_cubit.dart';
+import 'package:news_today/helpers/shared.dart';
+import 'package:news_today/shared_widgets.dart';
 import 'package:news_today/themes/app_colors.dart';
 import 'package:news_today/themes/app_text_styles.dart';
 
 class QuickReadsLayout extends StatelessWidget {
   const QuickReadsLayout(
-      {required this.sources,
+      {
+      // required this.sources,
       required this.appTextStyles,
       required this.appColors,
       super.key});
-  final List<SourceEntity> sources;
+  // final List<SourceEntity> sources;
   final AppTextStyles appTextStyles;
   final AppColors appColors;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
+    return BlocSelector<NewsCubit, NewsState, List<SourceEntity>>(
+      selector: (state) {
+        return state.sources!;
+      },
+      builder: (context, sources) {
+        return Container(
           height: 90.0.sp,
           // padding: EdgeInsets.only(left: spPadding1),
           constraints: const BoxConstraints(maxHeight: 200.0),
@@ -32,6 +38,7 @@ class QuickReadsLayout extends StatelessWidget {
                 const SizedBox(width: padding3),
             itemBuilder: (context, index) {
               // print(sources[index].favIconURL!);
+              // print('in source: ${sources[index].isImageFetchAvailable}');
               return Container(
                 width: 70.0.sp,
                 margin: EdgeInsets.only(
@@ -55,21 +62,33 @@ class QuickReadsLayout extends StatelessWidget {
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: appColors.seconderColor),
-                      child: CachedNetworkImage(
-                        // fit: BoxFit.contain,
-                        // imageUrl: 'https://copilot.microsoft.com/favicon.ico',
-                        imageUrl: sources[index].favIconURL! != ''
-                            ? sources[index].favIconURL!
-                            : 'https://www.google.com/favicon.ico',
-                        placeholder: (context, url) => const SizedBox(
-                            height: double.maxFinite, width: double.maxFinite),
-                        errorWidget: (context, url, error) => const SizedBox(
-                            height: double.maxFinite, width: double.maxFinite),
-                        errorListener: (value) {
-                          print(value.toString());
-                        },
-                        // cacheManager: ,
-                      ),
+                      child: sources[index].isImageFetchAvailable
+                          ? CachedNetworkImage(
+                              // fit: BoxFit.contain,
+                              // imageUrl: 'https://copilot.microsoft.com/favicon.ico',
+                              imageUrl: sources[index].favIconURL! != ''
+                                  ? sources[index].favIconURL!
+                                  : 'https://www.google.com/favicon.ico',
+                              placeholder: (context, url) =>
+                                  appImagePlaceholder(appColors.seconderColor,
+                                      isCircle: true),
+                              errorWidget: (context, url, error) {
+                                print(
+                                    'in error widget ${sources[index].id}: ${sources[index].isImageFetchAvailable}');
+                                context
+                                    .read<NewsCubit>()
+                                    .onSourceImageError(sources[index].id!);
+                                return appImagePlaceholder(
+                                    appColors.seconderColor,
+                                    isCircle: true);
+                              },
+                              errorListener: (value) {
+                                print('in error listener ${value.toString()}');
+                              },
+                              // cacheManager: ,
+                            )
+                          : appImagePlaceholder(appColors.seconderColor,
+                              isCircle: true),
                     ),
                     // Text(sources[index].name!,
                     //     textAlign: TextAlign.center,
@@ -80,8 +99,8 @@ class QuickReadsLayout extends StatelessWidget {
               );
             },
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

@@ -6,6 +6,9 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart';
 import 'package:sanitize_html/sanitize_html.dart';
 
+//list of unwanted sources
+const List<String> excludedSourcesIds = ['al-jazeera-english'];
+
 String getSources(List<SourceEntity> sources) {
   String result = '';
   void addId(String? id) {

@@ -21,7 +21,7 @@ class ArticleEntity {
   final SourceBasic source; // Source of the article
   bool isSavedArticle;
   String? fullContent;
-  FullContentStatus fullContentStatus = FullContentStatus.initial;
+  FullContentStatus fullContentStatus;
 
   ArticleEntity({
     required this.id,
@@ -34,8 +34,8 @@ class ArticleEntity {
     required this.content,
     required this.source,
     required this.isSavedArticle,
-    String? fullContent,
-    FullContentStatus fullContentStatus = FullContentStatus.initial,
+    this.fullContent,
+    this.fullContentStatus = FullContentStatus.initial,
   });
 
   ArticleEntity copyWith({

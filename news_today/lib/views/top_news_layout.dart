@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_api/news_api.dart';
-import 'package:news_today/article_content/views/content_screen.dart';
-import 'package:news_today/home/cubit/news_cubit.dart';
-import 'package:news_today/home/helpers/shared.dart';
+import 'package:news_today/views/content_screen.dart';
+import 'package:news_today/cubit/news_cubit.dart';
+import 'package:news_today/helpers/shared.dart';
+import 'package:news_today/shared_widgets.dart';
 import 'package:news_today/themes/App_theme.dart';
 import 'package:news_today/themes/cubit/theme_cubit.dart';
 
@@ -94,30 +95,19 @@ class TopNewsArticle extends StatelessWidget {
         constraints: const BoxConstraints(minWidth: 340.0),
         child: Stack(
           children: [
-            Hero(
-              tag: article.id,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(radius1),
-                child: CachedNetworkImage(
-                  height: double.maxFinite,
-                  width: double.maxFinite,
-                  fit: BoxFit.cover,
-                  imageUrl: article.urlToImage,
-                  color: placementColor.withOpacity(0.5), // Color tint
-                  colorBlendMode: BlendMode.multiply,
-                  placeholder: (context, url) => Container(
-                      decoration: BoxDecoration(
-                          color: placementColor.withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(radius2)),
-                      height: double.maxFinite,
-                      width: double.maxFinite),
-                  errorWidget: (context, url, error) => Container(
-                      decoration: BoxDecoration(
-                          color: placementColor.withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(radius2)),
-                      height: double.maxFinite,
-                      width: double.maxFinite),
-                ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(radius1),
+              child: CachedNetworkImage(
+                height: double.maxFinite,
+                width: double.maxFinite,
+                fit: BoxFit.cover,
+                imageUrl: article.urlToImage,
+                color: placementColor.withOpacity(0.5), // Color tint
+                colorBlendMode: BlendMode.multiply,
+                placeholder: (context, url) =>
+                    appImagePlaceholder(placementColor),
+                errorWidget: (context, url, error) =>
+                    appImagePlaceholder(placementColor),
               ),
             ),
             Container(

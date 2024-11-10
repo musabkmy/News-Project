@@ -62,7 +62,7 @@ final class NewsState extends Equatable {
       contentLoadStatus: contentLoadStatus ?? this.contentLoadStatus,
       contentLoadErrorMessage:
           contentLoadErrorMessage ?? this.contentLoadErrorMessage,
-      selectedArticle: selectedArticle,
+      selectedArticle: selectedArticle ?? this.selectedArticle,
     );
   }
 

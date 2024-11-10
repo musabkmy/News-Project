@@ -2,7 +2,7 @@
 
 import 'package:mocktail/mocktail.dart';
 import 'package:news_api/news_api.dart';
-import 'package:news_today/home/cubit/news_cubit.dart';
+import 'package:news_today/cubit/news_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:test/test.dart';
 

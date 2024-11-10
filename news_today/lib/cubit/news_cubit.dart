@@ -3,7 +3,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:news_api/news_api.dart';
-import 'package:news_today/home/cubit/helpers/error_messages.dart';
+import 'package:news_today/cubit/helpers/error_messages.dart';
+import 'package:news_today/extenstions/str_extenstions.dart';
 
 part 'news_state.dart';
 
@@ -43,10 +44,12 @@ class NewsCubit extends Cubit<NewsState> {
           topNews: topNews,
           todaysNews: todaysNews,
           errorMessage: ''));
-    } on Exception {
-      emit(state.copyWith(status: NewsStatus.failure, errorMessage: ''));
-    } catch (err) {
-      emit(state.copyWith(status: NewsStatus.failure, errorMessage: ''));
+    } on Exception catch (e) {
+      emit(state.copyWith(
+          status: NewsStatus.failure, errorMessage: e.toString()));
+    } catch (e) {
+      emit(state.copyWith(
+          status: NewsStatus.failure, errorMessage: e.toString()));
     }
   }
 
@@ -158,19 +161,23 @@ class NewsCubit extends Cubit<NewsState> {
           //fetched the content
           returnedFullContent = await _newsApi.fetchFullContent(
               contentURL: contentURL, contentInfo: contentInfo);
+          print('returnedFullContent is: $returnedFullContent');
 
-          // Update the article with the fetched content
-          topArticles[articleIndex] = topArticles[articleIndex].copyWith(
-              fullContent:
-                  returnedFullContent.isEmpty ? null : returnedFullContent,
-              fullContentStatus: returnedFullContent.isEmpty
-                  ? FullContentStatus.initial
-                  : FullContentStatus.fetched);
-
+          // create an updated list with the updated article info the article with the fetched content
+          final List<ArticleEntity> updatedArticles = List.of(state.topNews!);
+          updatedArticles[articleIndex] = updatedArticles[articleIndex]
+              .copyWith(
+                  fullContent: returnedFullContent.removeExtraSpaces(),
+                  fullContentStatus: FullContentStatus.fetched);
+          print(
+              '${updatedArticles[articleIndex].id}: with ${updatedArticles[articleIndex].fullContentStatus} value should be ${updatedArticles[articleIndex].fullContent}');
           //change the value and define selected article
           emit(state.copyWith(
+              selectedArticle: updatedArticles[articleIndex],
               contentLoadStatus: ContentLoadStatus.success,
-              topNews: List<ArticleEntity>.from(topArticles)));
+              topNews: List.of(updatedArticles)));
+          print(
+              '${state.topNews![articleIndex].id}: has been saved as ${state.topNews![articleIndex].fullContent}');
         }
         //in the category articles
         else if (state.todaysNews!.containsKey(articleCategory)) {
@@ -243,5 +250,20 @@ class NewsCubit extends Cubit<NewsState> {
         contentLoadStatus: ContentLoadStatus.initial,
         selectedArticle: null,
         contentLoadErrorMessage: ''));
+  }
+
+  void onSourceImageError(String selectedId) {
+    int index = state.sources!.indexWhere((item) => item.id == selectedId);
+
+    if (index != -1) {
+      List<SourceEntity> updatedList = List.of(state.sources!);
+      updatedList[index] =
+          updatedList[index].copyWith(isImageFetchAvailable: false);
+      print(
+          'change image availability must be: ${updatedList[index].isImageFetchAvailable}');
+      emit(state.copyWith(sources: List.of(updatedList)));
+      print(
+          'change image availability is actually:${state.sources![index].id} ${state.sources![index].isImageFetchAvailable}');
+    }
   }
 }

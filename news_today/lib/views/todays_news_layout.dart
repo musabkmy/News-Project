@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:news_api/news_api.dart';
-import 'package:news_today/home/cubit/news_cubit.dart';
-import 'package:news_today/home/helpers/shared.dart';
+import 'package:news_today/cubit/news_cubit.dart';
+import 'package:news_today/helpers/shared.dart';
+import 'package:news_today/shared_widgets.dart';
 import 'package:news_today/themes/App_theme.dart';
 import 'package:news_today/themes/app_colors.dart';
 import 'package:news_today/themes/app_text_styles.dart';
@@ -216,23 +217,16 @@ class TabViewLayout extends StatelessWidget {
           children: [
             Expanded(
               flex: 1,
-              child: Hero(
-                tag: article.id,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(radius1),
-                  child: CachedNetworkImage(
-                    fit: BoxFit.fitHeight,
-                    height: 84.0.sp,
-                    imageUrl: article.urlToImage,
-                    placeholder: (context, url) => Container(
-                        color: imagePlacementColor,
-                        height: double.maxFinite,
-                        width: double.maxFinite),
-                    errorWidget: (context, url, error) => Container(
-                        color: imagePlacementColor,
-                        height: double.maxFinite,
-                        width: double.maxFinite),
-                  ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(radius1),
+                child: CachedNetworkImage(
+                  fit: BoxFit.fitHeight,
+                  height: 84.0.sp,
+                  imageUrl: article.urlToImage,
+                  placeholder: (context, url) =>
+                      appImagePlaceholder(imagePlacementColor),
+                  errorWidget: (context, url, error) =>
+                      appImagePlaceholder(imagePlacementColor),
                 ),
               ),
             ),

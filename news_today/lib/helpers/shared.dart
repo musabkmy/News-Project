@@ -25,3 +25,6 @@ double spPadding1 = 12.0.sp;
 
 ///16.0.sp
 double spPadding2 = 16.0.sp;
+
+///32.0.sp
+double spPadding3 = 32.0.sp;

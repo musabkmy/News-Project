@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
@@ -39,23 +38,39 @@ class NewsOpenApi implements NewsApi {
           throw SourcesNotFoundException();
         }
         print('sourcesJson: $sourcesJson');
-        final List<SourceModel> sources = sourcesJson
+        final List<SourceModel> sourcesModel = sourcesJson
             .map((response) =>
                 SourceModel.fromJson(response as Map<String, dynamic>))
             .toList()
             .sublist(0, sourcesJson.length >= 20 ? 20 : sourcesJson.length);
-        return sources.map((element) => element.toEntity()).toList();
+        // remove an wanted sources
+        sourcesModel
+            .removeWhere((element) => excludedSourcesIds.contains(element.id));
+        return sourcesModel.map((element) => element.toEntity()).toList();
+        // final List<SourceEntity> sourcesEntity = [];
+        // for (final item in sourcesModel) {
+        //   sourcesEntity.add(item.toEntity().copyWith(
+        //       isImageFetchAvailable:
+        //           await isFavIconAvailable(item.favIconURL)));
+        // }
+        // return sourcesEntity;
       } else {
         throw FetchSourcesFailure();
       }
-    } catch (err) {
-      log(err.toString());
-      rethrow;
+    } on NetworkException catch (e) {
+      throw NetworkException('Network Exception: ${e.message}');
+    } on SourcesNotFoundException catch (_) {
+      throw SourcesNotFoundException();
+    } on FetchSourcesFailure catch (_) {
+      throw FetchSourcesFailure();
+    } catch (e) {
+      throw Exception('Error: $e');
     }
   }
 
   @override
-  Future<bool> hasAFavIcon(String url) async {
+  Future<bool> isFavIconAvailable(String? url) async {
+    if (url == null) return false;
     try {
       // Attempt to fetch the image from the provided URL
       final response = await http.head(Uri.parse(url));
@@ -64,6 +79,8 @@ class NewsOpenApi implements NewsApi {
       } else {
         return false;
       }
+    } on NetworkException catch (_) {
+      return false;
     } catch (e) {
       return false;
     }
@@ -94,9 +111,14 @@ class NewsOpenApi implements NewsApi {
       } else {
         throw FetchTopArticlesFailure();
       }
-    } catch (err) {
-      log(err.toString());
-      rethrow;
+    } on NetworkException catch (e) {
+      throw NetworkException(e.message);
+    } on TopArticlesNotFoundException catch (_) {
+      throw TopArticlesNotFoundException();
+    } on FetchSourcesFailure catch (_) {
+      throw FetchSourcesFailure();
+    } catch (e) {
+      throw Exception('Error: $e');
     }
   }
 
@@ -105,7 +127,9 @@ class NewsOpenApi implements NewsApi {
       List<SourceEntity> sourcesEntity) async {
     //create sources query
     String sources = getSources(sourcesEntity);
-
+    if (sources.isEmpty) {
+      throw SourcesNotFoundException();
+    }
     try {
       final response = await http.get(Uri.parse(
           '$baseUrl/everything?apiKey=$apiKey&language=$language&sources=$sources'));
@@ -150,9 +174,12 @@ class NewsOpenApi implements NewsApi {
       } else {
         throw FetchTodaysArticlesFailure();
       }
-    } catch (err) {
-      log(err.toString());
-      rethrow;
+    } on NetworkException catch (e) {
+      throw NetworkException(e.message);
+    } on TodaysArticlesNotFoundException catch (_) {
+      throw TodaysArticlesNotFoundException();
+    } catch (e) {
+      throw Exception('Error: $e');
     }
   }
 

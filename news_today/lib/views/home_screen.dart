@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:news_today/home/cubit/news_cubit.dart';
-import 'package:news_today/home/views/home_body.dart';
+import 'package:news_today/cubit/news_cubit.dart';
+import 'package:news_today/views/home_body.dart';
 import 'package:news_today/themes/cubit/theme_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
